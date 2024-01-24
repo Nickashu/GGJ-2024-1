@@ -9,8 +9,10 @@ public class Player : MonoBehaviour {
 
     [SerializeField]
     private float movementSpeed, jumpPower, movementSmoothness, jumpSmoothness;
-    private float horizontal, smoothMove=0;
+    private float smoothMove=0;
     private bool lookingRight=true;
+
+    public float horizontal=0;
 
     private void Start() {
         rb = GetComponent<Rigidbody2D>();
