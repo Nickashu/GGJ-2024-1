@@ -6,13 +6,16 @@ public class Player : MonoBehaviour {
     private Rigidbody2D rb;
 
     public Transform groundCheck;
+    public Transform WallCheck;
     public LayerMask groundLayer;
     public ParticleSystem particlesDeath;
 
     [SerializeField]
     private float movementSpeed, jumpPower, movementSmoothness, jumpSmoothness;
     private float smoothMove=0, originalJumpPower;
-    private bool lookingRight=true, tookDamage=false;
+    private float lastWall=-1;
+    //-1 inicial, 1 esquerda, 2 direita
+    private bool lookingRight=true, tookDamage=false, hasJumped=false;
     private List<GameObject> powerUpsCollected = new List<GameObject>();
 
     [HideInInspector]
@@ -24,19 +27,21 @@ public class Player : MonoBehaviour {
     }
 
     private void FixedUpdate() {
-        if (!GameController.GetInstance().gameIsPaused) {   //Se o jogo não estiver pausado
-            //Fazendo a movimentação do player:
+        if (!GameController.GetInstance().gameIsPaused) {   //Se o jogo nï¿½o estiver pausado
+            //Fazendo a movimentaï¿½ï¿½o do player:
             if (horizontal > 0) {
                 smoothMove = Mathf.Lerp(smoothMove, 1, movementSmoothness);
                 rb.velocity = new Vector2(smoothMove * movementSpeed, rb.velocity.y);
                 if (!lookingRight)
                     flipPlayer();
+                isOnWall();
             }
             else if (horizontal < 0) {
                 smoothMove = Mathf.Lerp(smoothMove, -1, movementSmoothness);
                 rb.velocity = new Vector2(smoothMove * movementSpeed, rb.velocity.y);
                 if (lookingRight)
                     flipPlayer();
+                isOnWall();
             }
             else {
                 smoothMove = Mathf.Lerp(smoothMove, 0, movementSmoothness);
@@ -51,7 +56,7 @@ public class Player : MonoBehaviour {
         }
     }
 
-    //Estes métodos detectam os eventos de inputs:
+    //Estes mï¿½todos detectam os eventos de inputs:
     public void SetMovement(InputAction.CallbackContext value) {
         if (!GameController.GetInstance().gameIsPaused) {
             horizontal = value.ReadValue<Vector2>().x;
@@ -62,8 +67,10 @@ public class Player : MonoBehaviour {
     public void SetJump(InputAction.CallbackContext value) {
         if (!GameController.GetInstance().gameIsPaused) {
             if (value.performed) {   //Quando o evento acontecer
-                if (isOnGround())
+                bool OnWall = isOnWall();
+                if (isOnGround() || (OnWall && !hasJumped))
                     rb.velocity = new Vector2(rb.velocity.x, jumpPower);
+                    hasJumped=true;
             }
             if (value.canceled) {    //Se o evento for cancelado
                 if (rb.velocity.y > 0)
@@ -73,17 +80,41 @@ public class Player : MonoBehaviour {
     }
 
 
-    private bool isOnGround() {   //Método para verificar se o jogador está encostado no chão
-        return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
+    private bool isOnGround() {   //Mï¿½todo para verificar se o jogador estï¿½ encostado no chï¿½o
+        bool onGround = Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
+        if(onGround){
+            hasJumped = false;
+            lastWall = -1;
+        }
+        return onGround;
     }
-    private void flipPlayer() {   //Método para fazer o sprite do jogador virar
+
+    private bool isOnWall()
+    {
+        bool onWall = Physics2D.OverlapCircle(WallCheck.position, 1f, groundLayer);
+        if (onWall && lookingRight && lastWall != 2)
+        {
+            hasJumped = false;
+            lastWall = 2;
+        }
+        if (onWall && !lookingRight && lastWall != 1)
+        {
+            hasJumped = false;
+            lastWall = 1;
+        }
+        Debug.Log(lastWall);
+        return onWall;
+    }
+
+
+    private void flipPlayer() {   //Mï¿½todo para fazer o sprite do jogador virar
         lookingRight = !lookingRight;
         Vector3 locScale = transform.localScale;
         locScale.x *= -1;
         transform.localScale = locScale;
     }
 
-    private void damage() {  //Este método será chamado se o player levar um dano
+    private void damage() {  //Este mï¿½todo serï¿½ chamado se o player levar um dano
         if (!tookDamage) {
             gameObject.SetActive(false);
             resetPowerUps();
@@ -104,7 +135,7 @@ public class Player : MonoBehaviour {
     }
 
     private void OnCollisionEnter2D(Collision2D collision) {
-        if(collision.gameObject.tag == "obstacle_damage") {    //O player morre ao tocar em algo que dá dano
+        if(collision.gameObject.tag == "obstacle_damage") {    //O player morre ao tocar em algo que dï¿½ dano
             damage();
         }
         if (collision.gameObject.tag == "power_up_jump") {
@@ -115,7 +146,7 @@ public class Player : MonoBehaviour {
     }
 
 
-    private void animationRespawnEnd() {   //Quando o player terminar a animação de respawn, o jogo despausa
+    private void animationRespawnEnd() {   //Quando o player terminar a animaï¿½ï¿½o de respawn, o jogo despausa
         GameController.GetInstance().gameIsPaused = false;
         tookDamage = false;
     }
