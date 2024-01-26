@@ -9,6 +9,7 @@ public class GameController : MonoBehaviour {    //GameController será uma class
 
     [HideInInspector]
     public int currentSpawnPoint=0, typeOfDialogue=-1;
+    [HideInInspector]
     public bool gameIsPaused=false;
     public float limitMinYMap, limitMaxYMap;
 
@@ -95,5 +96,9 @@ public class GameController : MonoBehaviour {    //GameController será uma class
         player.transform.position = spawnPoints[currentSpawnPoint].position;
         player.SetActive(true);
         player.GetComponent<Animator>().SetBool("respawn", true);
+    }
+
+    public void ResetGame() {
+        Debug.Log("Jogo resetado!");
     }
 }
