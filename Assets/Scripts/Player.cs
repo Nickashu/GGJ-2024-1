@@ -92,6 +92,7 @@ public class Player : MonoBehaviour {
     private bool isOnWall()
     {
         bool onWall = Physics2D.OverlapCircle(WallCheck.position, 1f, groundLayer);
+        //bool onWall = true;
         if (onWall && lookingRight && lastWall != 2)
         {
             hasJumped = false;
@@ -102,7 +103,7 @@ public class Player : MonoBehaviour {
             hasJumped = false;
             lastWall = 1;
         }
-        Debug.Log(lastWall);
+        //Debug.Log(lastWall);
         return onWall;
     }
 
@@ -114,15 +115,15 @@ public class Player : MonoBehaviour {
         transform.localScale = locScale;
     }
 
-    private void damage() {  //Este m�todo ser� chamado se o player levar um dano
+    private void damage(int details=-1) {  //Este m�todo ser� chamado se o player levar um dano
         if (!tookDamage) {
             gameObject.SetActive(false);
             resetPowerUps();
             Vector3 particlesPosition = new Vector3(transform.position.x, transform.position.y + 0.3f);
             particlesDeath.transform.position = particlesPosition;
             particlesDeath.Play();
-            GameController.GetInstance().playerIsRespawning = true;
             tookDamage = true;
+            GameController.GetInstance().gameStartDialogue((int)GameController.DialogueTypes.Death, details);   //details define como o jogador morreu
         }
     }
 

@@ -8,8 +8,10 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
     private static DialogueController instance;
 
     public TextAsset variablesJSON;    //Este é o arquivo JSON do ink que contém todas as variáveis de diálogo
-    public GameObject ImgCharacterDialogue, DialogueBoxContainer;
-    public TextMeshProUGUI txtDialogue, txtNameCharacter;
+    //public GameObject ImgCharacterDialogue;
+    public GameObject DialogueBoxContainer;
+    //public TextMeshProUGUI txtNameCharacter;
+    public TextMeshProUGUI txtDialogue;
     public GameObject[] choices;
     public DialogueVariablesController dialogueVariablesController { get; private set; }
 
@@ -60,9 +62,7 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
         }
     }
 
-    public void StartDialogue(TextAsset dialogueJSON, bool pauseGame) {
-        if(pauseGame)
-            GameController.GetInstance().gameIsPaused = true;
+    public void StartDialogue(TextAsset dialogueJSON) {
         dialogue = new Story(dialogueJSON.text);        //Carregando o diálogo a partir do arquivo JSON passado de parâmetro
         dialogueActive = true;
         DialogueBoxContainer.SetActive(true);
@@ -98,7 +98,7 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
 
     //Função que printa cada linha do diálogo na caixa de diálogo
     private IEnumerator PrintDialogue() {
-        ChangeCharacterDialogue();
+        //ChangeCharacterDialogue();
         string fala = dialogue.currentText;    //Pegando a fala atual do diálogo
 
         txtDialogue.text = "";
@@ -111,12 +111,15 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
     }
 
     private void EndDialogue() {   //Método chamado ao fim do diálogo
-        txtDialogue.text = "";
-        DialogueBoxContainer.SetActive(false);
-        dialogueActive = false;
+        DialogueBoxContainer.GetComponent<Animator>().SetBool("Off", true);   //Fazendo a caixa de diálogo desaparecer
         dialogueVariablesController.StopListening(dialogue);  //Para parar de detectar as mudanças de variáveis no diálogo
-        GameController.GetInstance().gameIsPaused = false;
+        GameController.GetInstance().gameEndDialogue();
+        //GameController.GetInstance().gameIsPaused = false;
         //GameController.checkVariablesDialogue(dialogueVariablesController.variablesValues);    //Fazendo as checagens de variáveis importantes que podem ter mudado após um diálogo
+    }
+    public void endAnimationDialogueBoxOff() {   //Quando a caixa de diálogo desaparecer
+        txtDialogue.text = "";
+        dialogueActive = false;
     }
 
 
@@ -148,6 +151,7 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
         }
     }
 
+    /*
     private void ChangeCharacterDialogue() {   //Função para mudar o sprite do personagem do diálogo
         List<string> tagsDialogueLine = dialogue.currentTags;   //As tags são: nome do personagem e sprite do personagem
         string characterName = "", spriteCharacter = "";
@@ -157,11 +161,12 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
             else if (tag.Split(":")[0].Trim() == "state")
                 spriteCharacter = tag.Split(":")[1].Trim();
         }
-        if (spriteCharacter != "")
-            ImgCharacterDialogue.GetComponent<Animator>().Play(spriteCharacter);
-        if (characterName != "")
-            txtNameCharacter.text = characterName;
+        //if (spriteCharacter != "")
+        //    ImgCharacterDialogue.GetComponent<Animator>().Play(spriteCharacter);
+        //if (characterName != "")
+        //    txtNameCharacter.text = characterName;
     }
+    */
 
     public Ink.Runtime.Object GetVariableState(string variableName) {    //Esta função servirá para recuperar o estado de determinada variável de diálogo
         Ink.Runtime.Object variableValue = null;
