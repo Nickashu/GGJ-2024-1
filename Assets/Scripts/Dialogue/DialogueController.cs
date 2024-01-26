@@ -52,8 +52,13 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
 
     private void Update() {
         if (dialogueActive) {
-            if (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Space))
-                PassDialogue();
+            if (GameController.GetInstance().gameIsPaused) {     //Se for um diálogo que pausa o jogo
+                if (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Space))
+                    PassDialogue();
+            }
+            else {
+                StartCoroutine(passAutomaticDialogue());
+            }
         }
         if (endLine) {
             endLine = false;
@@ -62,7 +67,18 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
         }
     }
 
+    private IEnumerator passAutomaticDialogue() {    //Os diálogos que não pausam o jogo serão passados automaticamente
+        yield return new WaitForSeconds(5);
+        StopAllCoroutines();
+        PassDialogue();
+    }
+
     public void StartDialogue(TextAsset dialogueJSON) {
+        if (dialogueActive) {   //Se já estiver tendo algum diálogo que não pausou o jogo
+            PassDialogue(true);
+            txtDialogue.text = "";
+            indexLine = 0;
+        }
         dialogue = new Story(dialogueJSON.text);        //Carregando o diálogo a partir do arquivo JSON passado de parâmetro
         dialogueActive = true;
         DialogueBoxContainer.SetActive(true);
@@ -74,7 +90,7 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
         }
     }
 
-    private void PassDialogue() {
+    private void PassDialogue(bool endDialogue=false) {
         string fala = dialogue.currentText;
 
         if (indexLine < fala.Length - 1) {         //Se não estiver no final da fala
@@ -84,13 +100,15 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
             txtDialogue.text = fala;
         }
         else {
-            if (dialogue.currentChoices.Count == 0) {
-                //SoundController.GetInstance().PlaySound("skip_dialogo", null);
-                if (!dialogue.canContinue)     //Se estiver no final do diálogo
-                    EndDialogue();
-                else {
-                    dialogue.Continue();
-                    StartCoroutine(PrintDialogue());
+            if (!endDialogue) {
+                if (dialogue.currentChoices.Count == 0) {
+                    //SoundController.GetInstance().PlaySound("skip_dialogo", null);
+                    if (!dialogue.canContinue)     //Se estiver no final do diálogo
+                        EndDialogue();
+                    else {
+                        dialogue.Continue();
+                        StartCoroutine(PrintDialogue());
+                    }
                 }
             }
         }
@@ -114,7 +132,6 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
         DialogueBoxContainer.GetComponent<Animator>().SetBool("Off", true);   //Fazendo a caixa de diálogo desaparecer
         dialogueVariablesController.StopListening(dialogue);  //Para parar de detectar as mudanças de variáveis no diálogo
         GameController.GetInstance().gameEndDialogue();
-        //GameController.GetInstance().gameIsPaused = false;
         //GameController.checkVariablesDialogue(dialogueVariablesController.variablesValues);    //Fazendo as checagens de variáveis importantes que podem ter mudado após um diálogo
     }
     public void endAnimationDialogueBoxOff() {   //Quando a caixa de diálogo desaparecer

@@ -12,6 +12,19 @@ public class GameController : MonoBehaviour {    //GameController será uma class
     public bool gameIsPaused=false;
     public float limitMinYMap, limitMaxYMap;
 
+    private Dictionary<string, int> jokeDialoguesDictionary = new Dictionary<string, int> {
+        {"jokeTest", 1 },
+        {"jokeSpikes", 2 }
+    };
+    private Dictionary<string, int> loreDialoguesDictionary = new Dictionary<string, int> {
+        {"lore0", 1 },
+        {"lore1", 2 }
+    };
+    private Dictionary<string, int> deathDialoguesDictionary = new Dictionary<string, int> {
+        {"deathOffLimits", 1 },
+        {"deathSpikes", 2 }
+    };
+
     public enum DialogueTypes {   //Estes serão os tipos de diálogos possíveis no jogo
         Death,
         Lore,
@@ -38,19 +51,25 @@ public class GameController : MonoBehaviour {    //GameController será uma class
         }
     }
 
-    public void gameStartDialogue(int idTypeOfDialogue, int details=-1) {    //Este método será chamado sempre que um diálogo se iniciar
+    public void gameStartDialogue(int idTypeOfDialogue, string details) {    //Este método será chamado sempre que um diálogo se iniciar
         typeOfDialogue = idTypeOfDialogue;
-        int idDialogue = details == -1? 0 : details;
+        int idDialogue=0;    //0 será o índice padrão
         switch (typeOfDialogue) {
             case (int)DialogueTypes.Death:
                 gameIsPaused = true;
+                if (deathDialoguesDictionary.ContainsKey(details))
+                    idDialogue = deathDialoguesDictionary[details];
                 objDialogueDeath.GetComponent<DialogueTrigger>().TriggerDialogue(idDialogue);
                 break;
             case (int)DialogueTypes.Joke:
+                if (jokeDialoguesDictionary.ContainsKey(details))
+                    idDialogue = jokeDialoguesDictionary[details];
                 objDialogueJoke.GetComponent<DialogueTrigger>().TriggerDialogue(idDialogue);
                 break;
             case (int)DialogueTypes.Lore:
                 gameIsPaused = true;
+                if (loreDialoguesDictionary.ContainsKey(details))
+                    idDialogue = loreDialoguesDictionary[details];
                 objDialogueLore.GetComponent<DialogueTrigger>().TriggerDialogue(idDialogue);
                 break;
         }

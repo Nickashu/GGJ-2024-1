@@ -1,0 +1,1 @@
+﻿{"inkVersion":21,"root":[["\n","ev",{"VAR?":"language"},0,"==","/ev",[{"->":".^.b","c":true},{"b":["^ ",{"->":"main"},{"->":"0.7"},null]}],"nop","\n",["done",{"#f":5,"#n":"g-0"}],null],"done",{"main":["^pula nesse espinho aí só pra eu ver uma coisa com todo respeito","\n","end",{"#f":1}],"global decl":["ev",0,{"VAR=":"language"},"/ev","end",null],"#f":1}],"listDefs":{}}

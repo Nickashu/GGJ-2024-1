@@ -48,11 +48,15 @@ public class Player : MonoBehaviour {
                 rb.velocity = new Vector2(smoothMove * movementSpeed, rb.velocity.y);
             }
         }
+        else {
+            horizontal = 0;
+            rb.velocity = new Vector2(0, 0);
+        }
     }
 
     private void Update() {
         if ((transform.position.y < GameController.GetInstance().limitMinYMap || transform.position.y > GameController.GetInstance().limitMaxYMap)) {   //Se o jogador sair dos limites do mapa
-            damage();
+            damage("deathOffLimits");
         }
     }
 
@@ -92,7 +96,6 @@ public class Player : MonoBehaviour {
     private bool isOnWall()
     {
         bool onWall = Physics2D.OverlapCircle(WallCheck.position, 1f, groundLayer);
-        //bool onWall = true;
         if (onWall && lookingRight && lastWall != 2)
         {
             hasJumped = false;
@@ -103,7 +106,6 @@ public class Player : MonoBehaviour {
             hasJumped = false;
             lastWall = 1;
         }
-        //Debug.Log(lastWall);
         return onWall;
     }
 
@@ -115,7 +117,7 @@ public class Player : MonoBehaviour {
         transform.localScale = locScale;
     }
 
-    private void damage(int details=-1) {  //Este m�todo ser� chamado se o player levar um dano
+    private void damage(string details) {  //Este m�todo ser� chamado se o player levar um dano
         if (!tookDamage) {
             gameObject.SetActive(false);
             resetPowerUps();
@@ -137,12 +139,25 @@ public class Player : MonoBehaviour {
 
     private void OnCollisionEnter2D(Collision2D collision) {
         if(collision.gameObject.tag == "obstacle_damage") {    //O player morre ao tocar em algo que d� dano
-            damage();
+            damage(collision.gameObject.name);
         }
-        if (collision.gameObject.tag == "power_up_jump") {
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision) {
+        if (collision.gameObject.tag == "power_up") {
+            if (collision.gameObject.layer == LayerMask.NameToLayer("power_up_jump")) {
+                jumpPower *= 20;
+            }
             powerUpsCollected.Add(collision.gameObject);
             collision.gameObject.SetActive(false);
-            jumpPower *= 20;
+        }
+
+        if (collision.gameObject.tag == "lore_object") {
+            GameController.GetInstance().gameStartDialogue((int)GameController.DialogueTypes.Lore, collision.gameObject.name);
+            collision.gameObject.SetActive(false);
+        }
+        if (collision.gameObject.tag == "joke_object") {
+            GameController.GetInstance().gameStartDialogue((int)GameController.DialogueTypes.Joke, collision.gameObject.name);
         }
     }
 

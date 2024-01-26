@@ -5,7 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - obstacle_damage
-  - power_up_jump
+  - power_up
+  - joke_object
+  - lore_object
   layers:
   - Default
   - TransparentFX
@@ -14,7 +16,7 @@ TagManager:
   - Water
   - UI
   - Ground
-  - 
+  - power_up_jump
   - 
   - 
   - 
