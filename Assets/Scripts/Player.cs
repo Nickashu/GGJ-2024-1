@@ -13,7 +13,7 @@ public class Player : MonoBehaviour {
 
     [SerializeField]
     private float movementSpeed, jumpPower, movementSmoothness, jumpSmoothness;
-    private float smoothMove=0, originalJumpPower;
+    private float smoothMove=0, originalJumpPower, originalGravity;
     private float lastWall=-1;
     //-1 inicial, 1 esquerda, 2 direita
     private bool lookingRight=true, tookDamage=false, hasJumped=false;
@@ -25,10 +25,12 @@ public class Player : MonoBehaviour {
     private void Start() {
         rb = GetComponent<Rigidbody2D>();
         originalJumpPower = jumpPower;
+        originalGravity = rb.gravityScale;
     }
 
     private void FixedUpdate() {
-        if (!GameController.GetInstance().gameIsPaused) {   //Se o jogo n�o estiver pausado
+        if (!GameController.GetInstance().gamePaused()) {   //Se o jogo n�o estiver pausado
+            rb.gravityScale = originalGravity;
             //Fazendo a movimenta��o do player:
             if (horizontal > 0) {
                 smoothMove = Mathf.Lerp(smoothMove, 1, movementSmoothness);
@@ -52,6 +54,7 @@ public class Player : MonoBehaviour {
         else {
             horizontal = 0;
             rb.velocity = new Vector2(0, 0);
+            rb.gravityScale = 0;
         }
     }
 
@@ -63,14 +66,14 @@ public class Player : MonoBehaviour {
 
     //Estes m�todos detectam os eventos de inputs:
     public void SetMovement(InputAction.CallbackContext value) {
-        if (!GameController.GetInstance().gameIsPaused) {
+        if (!GameController.GetInstance().gamePaused()) {
             horizontal = value.ReadValue<Vector2>().x;
             if (value.canceled)    //Se o evento for cancelado
                 horizontal = 0;
         }
     }
     public void SetJump(InputAction.CallbackContext value) {
-        if (!GameController.GetInstance().gameIsPaused) {
+        if (!GameController.GetInstance().gamePaused()) {
             if (value.performed) {   //Quando o evento acontecer
                 bool OnWall = isOnWall();
                 if (isOnGround() || (OnWall && !hasJumped))

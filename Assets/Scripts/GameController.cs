@@ -6,12 +6,12 @@ using UnityEngine.SceneManagement;
 public class GameController : MonoBehaviour {    //GameController será uma classe Singleton
     private static GameController instance;
     public Transform[] spawnPoints;
-    public GameObject player, objDialogueDeath, objDialogueLore, objDialogueJoke;
+    public GameObject player, objDialogueDeath, objDialogueLore, objDialogueJoke, canvasPause;
 
     [HideInInspector]
     public int currentSpawnPoint=0, typeOfDialogue=-1;
     [HideInInspector]
-    public bool gameIsPaused=false;
+    public bool gameIsPaused=false, gameStopped=false;
     public float limitMinYMap, limitMaxYMap;
     private bool isInGame;
 
@@ -58,6 +58,17 @@ public class GameController : MonoBehaviour {    //GameController será uma class
             if (currentSpawnPoint != spawnPoints.Length - 1) {   //Se o jogador tiver passado do último checkpoint
                 if (player.transform.position.x > spawnPoints[currentSpawnPoint + 1].position.x && player.transform.position.y > spawnPoints[currentSpawnPoint + 1].position.y) {  //Se chegamos no próximo checkpoint, atualizamos o spawnPoint
                     currentSpawnPoint++;
+                }
+            }
+
+            if (Input.GetKeyDown(KeyCode.Escape)) {
+                if (gameStopped) {
+                    gameStopped = false;
+                    canvasPause.SetActive(false);
+                }
+                else {
+                    gameStopped = true;
+                    canvasPause.SetActive(true);
                 }
             }
         }
@@ -110,6 +121,25 @@ public class GameController : MonoBehaviour {    //GameController será uma class
     }
 
     public void ResetGame() {
+        gameStopped = false;
         Debug.Log("Jogo resetado!");
+    }
+
+    public bool gamePaused() {
+        if (DialogueController.GetInstance().dialogueActive || gameIsPaused || gameStopped)
+            return true;
+        return false;
+    }
+
+
+
+
+
+    public void returnToMenu() {
+        TransitionsController.GetInstance().LoadMenu();
+    }
+    public void resumeGame() {
+        gameStopped = false;
+        canvasPause.SetActive(false);
     }
 }
