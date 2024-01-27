@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class DialogueController : MonoBehaviour {    //Esta classe será única para todo o projeto (singleton class)
     private static DialogueController instance;
@@ -19,6 +20,8 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
     private Story dialogue;
 
     private bool endLine = false;   //Esta variável é responsável por guardar se cada linha do diálogo já terminou ou ainda não
+    [HideInInspector]
+    public bool isInGame = true;
     private float textSpeed = 0.05f;
     private int indexLine;
 
@@ -39,31 +42,36 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
     }
 
     void Start() {
-        DialogueBoxContainer.SetActive(false);
-        dialogueActive = false;
+        if (!SceneManager.GetActiveScene().name.Contains("Main"))
+            isInGame = false;
+        if (isInGame) {
+            DialogueBoxContainer.SetActive(false);
+            dialogueActive = false;
 
-        choicesTxt = new TextMeshProUGUI[choices.Length];   //O array deve ter o mesmo tamanho do número de escolhas
-        int index = 0;
-        foreach (GameObject choice in choices) {
-            choicesTxt[index] = choice.GetComponentInChildren<TextMeshProUGUI>();
-            index++;
+            choicesTxt = new TextMeshProUGUI[choices.Length];   //O array deve ter o mesmo tamanho do número de escolhas
+            int index = 0;
+            foreach (GameObject choice in choices) {
+                choicesTxt[index] = choice.GetComponentInChildren<TextMeshProUGUI>();
+                index++;
+            }
         }
     }
 
     private void Update() {
-        if (dialogueActive) {
-            if (GameController.GetInstance().gameIsPaused) {     //Se for um diálogo que pausa o jogo
-                if (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Space))
-                    PassDialogue();
+        if (isInGame) {
+            if (dialogueActive) {
+                if (GameController.GetInstance().gameIsPaused) {     //Se for um diálogo que pausa o jogo
+                    if (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Space))
+                        PassDialogue();
+                }
+                else
+                    StartCoroutine(passAutomaticDialogue());
             }
-            else {
-                StartCoroutine(passAutomaticDialogue());
+            if (endLine) {
+                endLine = false;
+                if (dialogue.currentChoices.Count > 0)
+                    ShowChoices();
             }
-        }
-        if (endLine) {
-            endLine = false;
-            if (dialogue.currentChoices.Count > 0)
-                ShowChoices();
         }
     }
 

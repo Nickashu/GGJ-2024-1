@@ -1,12 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour {    //GameController será uma classe Singleton
     private static GameController instance;
     public Transform[] spawnPoints;
-    public GameObject player, objDialogueDeath, objDialogueLore, objDialogueJoke, canvasPause;
+    public GameObject player, objDialogueDeath, objDialogueLore, objDialogueJoke, canvasPause, canvasOptions;
+    public TextMeshProUGUI[] txtsInterface;
+    public TMP_Dropdown dropDownLanguage;
 
     [HideInInspector]
     public int currentSpawnPoint=0, typeOfDialogue=-1;
@@ -15,6 +18,7 @@ public class GameController : MonoBehaviour {    //GameController será uma class
     public float limitMinYMap, limitMaxYMap;
     private bool isInGame;
 
+    //Dicionários para os diálogos do jogo relacionando os nomes dos objetos ao seu índice de diálogo:
     private Dictionary<string, int> jokeDialoguesDictionary = new Dictionary<string, int> {
         {"jokeTest", 1 },
         {"jokeSpikes", 2 }
@@ -26,6 +30,15 @@ public class GameController : MonoBehaviour {    //GameController será uma class
     private Dictionary<string, int> deathDialoguesDictionary = new Dictionary<string, int> {
         {"deathOffLimits", 1 },
         {"deathSpikes", 2 }
+    };
+
+    //Dicionário para mudar o idioma das interfaces do jogo:
+    private Dictionary<string, string[]> dictLanguage = new Dictionary<string, string[]> {
+        {"txtStartGame", new string[] {"Start", "Começar"} },
+        {"txtResumeGame", new string[] {"Resume", "Continuar"} },
+        {"txtQuit", new string[] {"Quit", "Sair"} },
+        {"txtOptions", new string[] {"Options", "Opções"} },
+        {"txtControls", new string[] {"Controls", "Controles" } },
     };
 
     public enum DialogueTypes {   //Estes serão os tipos de diálogos possíveis no jogo
@@ -51,6 +64,9 @@ public class GameController : MonoBehaviour {    //GameController será uma class
             isInGame = false;
         else
             isInGame = true;
+
+        if(dropDownLanguage != null)
+            dropDownLanguage.value = Globals.idLanguage;
     }
 
     void Update() {
@@ -65,6 +81,7 @@ public class GameController : MonoBehaviour {    //GameController será uma class
                 if (gameStopped) {
                     gameStopped = false;
                     canvasPause.SetActive(false);
+                    canvasOptions.SetActive(false);
                 }
                 else {
                     gameStopped = true;
@@ -126,7 +143,7 @@ public class GameController : MonoBehaviour {    //GameController será uma class
     }
 
     public bool gamePaused() {
-        if (DialogueController.GetInstance().dialogueActive || gameIsPaused || gameStopped)
+        if (gameIsPaused || gameStopped)
             return true;
         return false;
     }
@@ -141,5 +158,23 @@ public class GameController : MonoBehaviour {    //GameController será uma class
     public void resumeGame() {
         gameStopped = false;
         canvasPause.SetActive(false);
+    }
+
+    public void changeLanguage(int id) {
+        Globals.idLanguage = id;
+        foreach(TextMeshProUGUI txt in txtsInterface) {
+            txt.text = dictLanguage[txt.gameObject.name][id];
+        }
+        DialogueController.GetInstance().dialogueVariablesController.ChangeSpecificVariable("updateLanguage", id);
+        DialogueController.GetInstance().dialogueVariablesController.CheckVariableValues();
+    }
+
+
+    public void Options() {
+        canvasOptions.SetActive(true);
+    }
+
+    public void QuitOptions() {
+        canvasOptions.SetActive(false);
     }
 }

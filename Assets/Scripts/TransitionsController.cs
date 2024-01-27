@@ -19,8 +19,6 @@ public class TransitionsController : MonoBehaviour {
         else
             Destroy(gameObject);
 
-        Debug.Log("timesMenu: " + SoundController.GetInstance().numTimesMenu);
-
         animTransitionScenes = bgTransitions.GetComponent<Animator>();
         if (SceneManager.GetActiveScene().name.Contains("Menu")) {
             if(SoundController.GetInstance().numTimesMenu == 0) 
