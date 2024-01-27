@@ -19,7 +19,17 @@ public class TransitionsController : MonoBehaviour {
         else
             Destroy(gameObject);
 
+        Debug.Log("timesMenu: " + SoundController.GetInstance().numTimesMenu);
+
         animTransitionScenes = bgTransitions.GetComponent<Animator>();
+        if (SceneManager.GetActiveScene().name.Contains("Menu")) {
+            if(SoundController.GetInstance().numTimesMenu == 0) 
+                SoundController.GetInstance().numTimesMenu = 1;
+            else
+                animTransitionScenes.SetBool("fadeOut", true);
+        }
+        else
+            animTransitionScenes.SetBool("fadeOut", true);
 
         //playSceneMusic();   //Toca a música correspondente ao mudar de cena
     }
@@ -53,7 +63,7 @@ public class TransitionsController : MonoBehaviour {
     }
 
     private IEnumerator LoadScene(int sceneIndex) {
-        animTransitionScenes.SetBool("fade", true);
+        animTransitionScenes.SetBool("fadeIn", true);
         yield return new WaitForSeconds(transistionTimeScenes);
         SceneManager.LoadScene(sceneIndex);
     }

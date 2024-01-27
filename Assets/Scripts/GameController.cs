@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour {    //GameController será uma classe Singleton
     private static GameController instance;
@@ -12,6 +13,7 @@ public class GameController : MonoBehaviour {    //GameController será uma class
     [HideInInspector]
     public bool gameIsPaused=false;
     public float limitMinYMap, limitMaxYMap;
+    private bool isInGame;
 
     private Dictionary<string, int> jokeDialoguesDictionary = new Dictionary<string, int> {
         {"jokeTest", 1 },
@@ -44,10 +46,19 @@ public class GameController : MonoBehaviour {    //GameController será uma class
             Destroy(gameObject);
     }
 
+    private void Start() {
+        if (!SceneManager.GetActiveScene().name.Contains("Main"))    //Se não estivermos na cena do jogo
+            isInGame = false;
+        else
+            isInGame = true;
+    }
+
     void Update() {
-        if (currentSpawnPoint != spawnPoints.Length - 1) {   //Se o jogador tiver passado do último checkpoint
-            if (player.transform.position.x > spawnPoints[currentSpawnPoint+1].position.x && player.transform.position.y > spawnPoints[currentSpawnPoint+1].position.y) {  //Se chegamos no próximo checkpoint, atualizamos o spawnPoint
-                currentSpawnPoint++;
+        if (isInGame) {
+            if (currentSpawnPoint != spawnPoints.Length - 1) {   //Se o jogador tiver passado do último checkpoint
+                if (player.transform.position.x > spawnPoints[currentSpawnPoint + 1].position.x && player.transform.position.y > spawnPoints[currentSpawnPoint + 1].position.y) {  //Se chegamos no próximo checkpoint, atualizamos o spawnPoint
+                    currentSpawnPoint++;
+                }
             }
         }
     }

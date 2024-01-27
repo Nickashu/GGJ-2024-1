@@ -8,6 +8,7 @@ TagManager:
   - power_up
   - joke_object
   - lore_object
+  - end_game
   layers:
   - Default
   - TransparentFX

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -159,6 +160,18 @@ public class Player : MonoBehaviour {
         if (collision.gameObject.tag == "joke_object") {
             GameController.GetInstance().gameStartDialogue((int)GameController.DialogueTypes.Joke, collision.gameObject.name);
         }
+
+
+        if (collision.gameObject.tag == "end_game") {   //Se o jogadro chegar ao fim do jogo
+            Destroy(collision.gameObject);
+            StartCoroutine(endGame());
+        }
+    }
+
+
+    private IEnumerator endGame() {
+        yield return new WaitForSeconds(2);
+        TransitionsController.GetInstance().LoadNextScene();
     }
 
 
