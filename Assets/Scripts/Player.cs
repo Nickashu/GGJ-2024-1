@@ -5,10 +5,12 @@ using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour {
     private Rigidbody2D rb;
+    private Animator anim;
+    private SpriteRenderer spriteRenderer;
 
     public Transform groundCheck;
-    public Transform WallCheck;
-    public LayerMask groundLayer;
+    public Transform WallCheck, WallCheck2;
+    public LayerMask groundLayer, wallLayer;
     public ParticleSystem particlesDeath;
 
     [SerializeField]
@@ -24,6 +26,8 @@ public class Player : MonoBehaviour {
 
     private void Start() {
         rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
         originalJumpPower = jumpPower;
         originalGravity = rb.gravityScale;
     }
@@ -50,6 +54,8 @@ public class Player : MonoBehaviour {
                 smoothMove = Mathf.Lerp(smoothMove, 0, movementSmoothness);
                 rb.velocity = new Vector2(smoothMove * movementSpeed, rb.velocity.y);
             }
+
+            anim.SetFloat("velocity", Mathf.Abs(horizontal));
         }
         else {
             horizontal = 0;
@@ -62,6 +68,9 @@ public class Player : MonoBehaviour {
         if ((transform.position.y < GameController.GetInstance().limitMinYMap || transform.position.y > GameController.GetInstance().limitMaxYMap)) {   //Se o jogador sair dos limites do mapa
             damage("deathOffLimits");
         }
+
+        anim.SetBool("onGround", isOnGround());
+        anim.SetBool("onWall", isOnWall());
     }
 
     //Estes m�todos detectam os eventos de inputs:
@@ -75,6 +84,7 @@ public class Player : MonoBehaviour {
     public void SetJump(InputAction.CallbackContext value) {
         if (!GameController.GetInstance().gamePaused()) {
             if (value.performed) {   //Quando o evento acontecer
+                anim.SetTrigger("jump");
                 bool OnWall = isOnWall();
                 if (isOnGround() || (OnWall && !hasJumped))
                     rb.velocity = new Vector2(rb.velocity.x, jumpPower);
@@ -99,7 +109,7 @@ public class Player : MonoBehaviour {
 
     private bool isOnWall()
     {
-        bool onWall = Physics2D.OverlapCircle(WallCheck.position, 1f, groundLayer);
+        bool onWall = (Physics2D.OverlapCircle(WallCheck.position, 0.2f, wallLayer) || Physics2D.OverlapCircle(WallCheck2.position, 0.2f, wallLayer));
         if (onWall && lookingRight && lastWall != 2)
         {
             hasJumped = false;
@@ -116,13 +126,12 @@ public class Player : MonoBehaviour {
 
     private void flipPlayer() {   //M�todo para fazer o sprite do jogador virar
         lookingRight = !lookingRight;
-        Vector3 locScale = transform.localScale;
-        locScale.x *= -1;
-        transform.localScale = locScale;
+        spriteRenderer.flipX = !spriteRenderer.flipX;
     }
 
     private void damage(string details) {  //Este m�todo ser� chamado se o player levar um dano
         if (!tookDamage) {
+            anim.Play("idle");
             gameObject.SetActive(false);
             resetPowerUps();
             Vector3 particlesPosition = new Vector3(transform.position.x, transform.position.y + 0.3f);

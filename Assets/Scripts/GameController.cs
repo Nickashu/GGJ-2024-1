@@ -134,7 +134,7 @@ public class GameController : MonoBehaviour {    //GameController será uma class
         yield return new WaitForSeconds(2);
         player.transform.position = spawnPoints[currentSpawnPoint].position;
         player.SetActive(true);
-        player.GetComponent<Animator>().SetBool("respawn", true);
+        player.GetComponent<Animator>().Play("anim_respawn");
     }
 
     public void ResetGame() {

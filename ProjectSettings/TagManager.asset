@@ -9,6 +9,7 @@ TagManager:
   - joke_object
   - lore_object
   - end_game
+  - power_up_jump
   layers:
   - Default
   - TransparentFX
@@ -18,7 +19,7 @@ TagManager:
   - UI
   - Ground
   - power_up_jump
-  - 
+  - Wall
   - 
   - 
   - 
