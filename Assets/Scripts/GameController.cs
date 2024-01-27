@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour {    //GameController será uma classe Singleton
     private static GameController instance;
@@ -10,6 +11,7 @@ public class GameController : MonoBehaviour {    //GameController será uma class
     public GameObject player, objDialogueDeath, objDialogueLore, objDialogueJoke, canvasPause, canvasOptions;
     public TextMeshProUGUI[] txtsInterface;
     public TMP_Dropdown dropDownLanguage;
+    public Slider OSTVolumeSlider, SFXVolumeSlider;
 
     [HideInInspector]
     public int currentSpawnPoint=0, typeOfDialogue=-1;
@@ -39,6 +41,9 @@ public class GameController : MonoBehaviour {    //GameController será uma class
         {"txtQuit", new string[] {"Quit", "Sair"} },
         {"txtOptions", new string[] {"Options", "Opções"} },
         {"txtControls", new string[] {"Controls", "Controles" } },
+        {"txtLanguage", new string[] {"Language", "Idioma" } },
+        {"txtOST", new string[] {"Music", "Música" } },
+        {"txtSFX", new string[] {"Sound Effects", "Efeitos Sonoros" } },
     };
 
     public enum DialogueTypes {   //Estes serão os tipos de diálogos possíveis no jogo
@@ -65,8 +70,18 @@ public class GameController : MonoBehaviour {    //GameController será uma class
         else
             isInGame = true;
 
-        if(dropDownLanguage != null)
+        if (dropDownLanguage != null)
             dropDownLanguage.value = Globals.idLanguage;
+        if (OSTVolumeSlider != null) {
+            OSTVolumeSlider.value = Globals.OSTVolume;
+            SFXVolumeSlider.value = Globals.SFXVolume;
+            OSTVolumeSlider.onValueChanged.AddListener((v) => {
+                Globals.OSTVolume = v;
+            });
+            SFXVolumeSlider.onValueChanged.AddListener((v) => {
+                Globals.SFXVolume = v;
+            });
+        }
     }
 
     void Update() {
@@ -80,8 +95,9 @@ public class GameController : MonoBehaviour {    //GameController será uma class
             if (Input.GetKeyDown(KeyCode.Escape)) {
                 if (gameStopped) {
                     gameStopped = false;
+                    if (canvasOptions.activeSelf)
+                        QuitOptions();
                     canvasPause.SetActive(false);
-                    canvasOptions.SetActive(false);
                 }
                 else {
                     gameStopped = true;
@@ -147,11 +163,6 @@ public class GameController : MonoBehaviour {    //GameController será uma class
             return true;
         return false;
     }
-
-
-
-
-
     public void returnToMenu() {
         TransitionsController.GetInstance().LoadMenu();
     }
@@ -168,13 +179,12 @@ public class GameController : MonoBehaviour {    //GameController será uma class
         DialogueController.GetInstance().dialogueVariablesController.ChangeSpecificVariable("updateLanguage", id);
         DialogueController.GetInstance().dialogueVariablesController.CheckVariableValues();
     }
-
-
     public void Options() {
         canvasOptions.SetActive(true);
     }
 
     public void QuitOptions() {
+        SoundController.GetInstance().ChangeVolumes();
         canvasOptions.SetActive(false);
     }
 }

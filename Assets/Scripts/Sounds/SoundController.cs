@@ -171,4 +171,13 @@ public class SoundController : MonoBehaviour {   //Será uma classe Singleton
             currentTrack.Play();
         }
     }
+
+    public void ChangeVolumes() {
+        foreach (Sound s in sounds) {
+            if (s.isOST)
+                s.volume = s.volume * Globals.OSTVolume;
+            else
+                s.volume = s.volume * Globals.SFXVolume;
+        }
+    }
 }
