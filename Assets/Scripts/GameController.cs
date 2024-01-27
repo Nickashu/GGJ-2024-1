@@ -113,6 +113,7 @@ public class GameController : MonoBehaviour {    //GameController será uma class
         switch (typeOfDialogue) {
             case (int)DialogueTypes.Death:
                 gameIsPaused = true;
+                player.GetComponent<Animator>().SetBool("dialogueActive", true);
                 if (deathDialoguesDictionary.ContainsKey(details))
                     idDialogue = deathDialoguesDictionary[details];
                 objDialogueDeath.GetComponent<DialogueTrigger>().TriggerDialogue(idDialogue);
@@ -124,6 +125,7 @@ public class GameController : MonoBehaviour {    //GameController será uma class
                 break;
             case (int)DialogueTypes.Lore:
                 gameIsPaused = true;
+                player.GetComponent<Animator>().SetBool("dialogueActive", true);
                 if (loreDialoguesDictionary.ContainsKey(details))
                     idDialogue = loreDialoguesDictionary[details];
                 objDialogueLore.GetComponent<DialogueTrigger>().TriggerDialogue(idDialogue);
@@ -132,6 +134,7 @@ public class GameController : MonoBehaviour {    //GameController será uma class
     }
 
     public void gameEndDialogue() {    //Este método é chamado sempre que um diálogo termina
+        player.GetComponent<Animator>().SetBool("dialogueActive", false);
         switch (typeOfDialogue) {
             case (int)DialogueTypes.Death:
                 StartCoroutine(RespawnPlayer());

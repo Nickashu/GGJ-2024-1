@@ -15,7 +15,7 @@ public class Player : MonoBehaviour {
 
     [SerializeField]
     private float movementSpeed, jumpPower, movementSmoothness, jumpSmoothness;
-    private float smoothMove=0, originalJumpPower, originalGravity;
+    private float smoothMove=0, originalJumpPower, originalGravity, originalScaleX, originalScaleY;
     private float lastWall=-1;
     //-1 inicial, 1 esquerda, 2 direita
     private bool lookingRight=true, tookDamage=false, hasJumped=false;
@@ -30,6 +30,8 @@ public class Player : MonoBehaviour {
         spriteRenderer = GetComponent<SpriteRenderer>();
         originalJumpPower = jumpPower;
         originalGravity = rb.gravityScale;
+        originalScaleX = spriteRenderer.transform.localScale.x;
+        originalScaleY = spriteRenderer.transform.localScale.y;
     }
 
     private void FixedUpdate() {
@@ -60,7 +62,7 @@ public class Player : MonoBehaviour {
         else {
             horizontal = 0;
             rb.velocity = new Vector2(0, 0);
-            rb.gravityScale = 0;
+            rb.gravityScale = 10;
         }
     }
 
@@ -131,8 +133,9 @@ public class Player : MonoBehaviour {
 
     private void damage(string details) {  //Este m�todo ser� chamado se o player levar um dano
         if (!tookDamage) {
-            anim.Play("idle");
             gameObject.SetActive(false);
+            Vector3 originalScale = new Vector3(originalScaleX, originalScaleY);
+            gameObject.transform.localScale = originalScale;
             resetPowerUps();
             Vector3 particlesPosition = new Vector3(transform.position.x, transform.position.y + 0.3f);
             particlesDeath.transform.position = particlesPosition;
@@ -159,7 +162,7 @@ public class Player : MonoBehaviour {
     private void OnTriggerEnter2D(Collider2D collision) {
         if (collision.gameObject.tag == "power_up") {
             if (collision.gameObject.layer == LayerMask.NameToLayer("power_up_jump")) {
-                jumpPower *= 20;
+                jumpPower *= 10;
             }
             powerUpsCollected.Add(collision.gameObject);
             collision.gameObject.SetActive(false);
