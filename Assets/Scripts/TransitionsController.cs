@@ -22,8 +22,10 @@ public class TransitionsController : MonoBehaviour {
 
         animTransitionScenes = bgTransitions.GetComponent<Animator>();
         if (SceneManager.GetActiveScene().name.Contains("Menu")) {
-            if(SoundController.GetInstance().numTimesMenu == 0) 
+            if (SoundController.GetInstance().numTimesMenu == 0) {
+                SoundController.GetInstance().ChangeVolumes();
                 SoundController.GetInstance().numTimesMenu = 1;
+            }
             else
                 animTransitionScenes.SetBool("fadeOut", true);
         }

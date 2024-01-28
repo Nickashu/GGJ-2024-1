@@ -9,9 +9,7 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
     private static DialogueController instance;
 
     public TextAsset variablesJSON;    //Este é o arquivo JSON do ink que contém todas as variáveis de diálogo
-    //public GameObject ImgCharacterDialogue;
     public GameObject DialogueBoxContainer;
-    //public TextMeshProUGUI txtNameCharacter;
     public TextMeshProUGUI txtDialogue;
     public GameObject[] choices;
     public DialogueVariablesController dialogueVariablesController { get; private set; }
@@ -22,7 +20,7 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
     private bool endLine = false;   //Esta variável é responsável por guardar se cada linha do diálogo já terminou ou ainda não
     [HideInInspector]
     public bool isInGame = true;
-    private float textSpeed = 0.1f;
+    private float textSpeed = 0.05f;
     private int indexLine;
 
     public bool dialogueActive { get; private set; }   //Quero que esta variável possa ser lida por outros scripts, mas não modificada
@@ -61,7 +59,7 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
         if (isInGame) {
             if (dialogueActive) {
                 if (GameController.GetInstance().gameIsPaused) {     //Se for um diálogo que pausa o jogo
-                    if (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Space))
+                    if (Input.GetKeyDown(KeyCode.Mouse0))
                         PassDialogue();
                 }
                 else
@@ -129,7 +127,8 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
         txtDialogue.text = "";
         for (int i = 0; i < fala.Length; i++) {    //Fazendo as letras aparecerem uma de cada vez
             txtDialogue.text += fala[i];
-            SoundController.GetInstance().PlaySound("text", null);
+            if (fala[i] == ' ')
+                SoundController.GetInstance().PlaySound("text", null);
             indexLine = i;
             yield return new WaitForSeconds(textSpeed);
         }
@@ -140,7 +139,6 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
         DialogueBoxContainer.GetComponent<Animator>().SetBool("Off", true);   //Fazendo a caixa de diálogo desaparecer
         dialogueVariablesController.StopListening(dialogue);  //Para parar de detectar as mudanças de variáveis no diálogo
         GameController.GetInstance().gameEndDialogue();
-        //GameController.checkVariablesDialogue(dialogueVariablesController.variablesValues);    //Fazendo as checagens de variáveis importantes que podem ter mudado após um diálogo
     }
     public void endAnimationDialogueBoxOff() {   //Quando a caixa de diálogo desaparecer
         txtDialogue.text = "";

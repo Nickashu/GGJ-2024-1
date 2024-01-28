@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +10,7 @@ public class SoundController : MonoBehaviour {   //Será uma classe Singleton
 
     public Sound[] sounds;
     private Dictionary<string, bool> isPlayingOST = new Dictionary<string, bool> { { "OST_menu", false }, { "OST_level", false } };
-    private Dictionary<string, float> volumeOSTs = new Dictionary<string, float> { { "OST_menu", 1 }, { "OST_level", 1 } };
+    private Dictionary<string, float> volumeOSTs = new Dictionary<string, float> { { "OST_menu", 0.5f }, { "OST_level", 0.5f } };
 
     public static SoundController GetInstance() {
         return instance;
@@ -67,34 +66,28 @@ public class SoundController : MonoBehaviour {   //Será uma classe Singleton
     }
 
     public void PlaySound(string soundName, GameObject go) {
-        Sound s = Array.Find(sounds, sound => sound.name.Equals(soundName));   //Procurando o som informado pelo seu nome
-        if (s != null) {
-            if (go != null) {
-                AudioSource[] audios = go.GetComponents<AudioSource>();
-                audios.FirstOrDefault(a => a.clip.name.Equals(soundName)).Play();
-            }
+        if (go != null) {
+            AudioSource[] audios = go.GetComponents<AudioSource>();
+            audios.FirstOrDefault(a => a.clip.name.Equals(soundName)).Play();
+        }
+        else {
+            if (soundName.Contains("OST"))   //Se eu estiver tentando mudar a música de fundo
+                SwapTrack(soundName);
             else {
-                if (soundName.Contains("OST"))   //Se eu estiver tentando mudar a música de fundo
-                    SwapTrack(soundName);
-                else {
-                    AudioSource[] audios = gameObject.GetComponents<AudioSource>();
-                    audios.FirstOrDefault(a => a.clip.name.Equals(soundName)).Play();
-                }
+                AudioSource[] audios = gameObject.GetComponents<AudioSource>();
+                audios.FirstOrDefault(a => a.clip.name.Equals(soundName)).Play();
             }
         }
     }
 
     public void StopSound(string soundName, GameObject go) {
-        Sound s = Array.Find(sounds, sound => sound.name.Equals(soundName));   //Procurando o som informado pelo seu nome
-        if (s != null) {
-            if (go != null) {
-                AudioSource[] audios = go.GetComponents<AudioSource>();
-                audios.FirstOrDefault(a => a.clip.name.Equals(soundName)).Stop();
-            }
-            else {
-                AudioSource[] audios = gameObject.GetComponents<AudioSource>();
-                audios.FirstOrDefault(a => a.clip.name.Equals(soundName)).Stop();
-            }
+        if (go != null) {
+            AudioSource[] audios = go.GetComponents<AudioSource>();
+            audios.FirstOrDefault(a => a.clip.name.Equals(soundName)).Stop();
+        }
+        else {
+            AudioSource[] audios = gameObject.GetComponents<AudioSource>();
+            audios.FirstOrDefault(a => a.clip.name.Equals(soundName)).Stop();
         }
     }
 
@@ -124,10 +117,9 @@ public class SoundController : MonoBehaviour {   //Será uma classe Singleton
 
     private IEnumerator FadeTrack(AudioSource oldOST, AudioSource newOST) {    //Esta co-rotina será usada para transiocionar entre uma música e outra
         float timeToFade = 1.25f, timeElapsed = 0;
-        float volumeNewOst = volumeOSTs[newOST.clip.name], volumeOldOST = 1;
+        float volumeNewOst = volumeOSTs[newOST.clip.name] * Globals.OSTVolume, volumeOldOST = 1;
         if (oldOST != null)
             volumeOldOST = volumeOSTs[oldOST.clip.name];
-
         newOST.Play();
         while (timeElapsed < timeToFade) {
             if (oldOST != null)
@@ -172,11 +164,12 @@ public class SoundController : MonoBehaviour {   //Será uma classe Singleton
     }
 
     public void ChangeVolumes() {
-        foreach (Sound s in sounds) {
-            if (s.isOST)
-                s.volume = s.volume * Globals.OSTVolume;
+        AudioSource[] audios = GetComponents<AudioSource>();
+        foreach (AudioSource audio in audios) {
+            if (audio.clip.name.Contains("OST"))
+                audio.volume = Globals.volumeOSTs[audio.clip.name] * Globals.OSTVolume;
             else
-                s.volume = s.volume * Globals.SFXVolume;
+                audio.volume = 1 * Globals.SFXVolume;
         }
     }
 }
