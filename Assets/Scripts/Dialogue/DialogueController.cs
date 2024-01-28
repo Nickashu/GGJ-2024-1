@@ -94,6 +94,7 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
 
         if (dialogue.canContinue) {
             dialogue.Continue();
+            dialogue.Continue();
             StartCoroutine(PrintDialogue());
         }
     }

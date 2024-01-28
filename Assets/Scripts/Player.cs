@@ -20,6 +20,7 @@ public class Player : MonoBehaviour {
     //-1 inicial, 1 esquerda, 2 direita
     private bool lookingRight=true, tookDamage=false, hasJumped=false;
     private List<GameObject> powerUpsCollected = new List<GameObject>();
+    private List<GameObject> objJokeDialogues = new List<GameObject>();
 
     [HideInInspector]
     public float horizontal=0;
@@ -67,11 +68,16 @@ public class Player : MonoBehaviour {
 
     private void Update() {
         if ((transform.position.y < GameController.GetInstance().limitMinYMap || transform.position.y > GameController.GetInstance().limitMaxYMap)) {   //Se o jogador sair dos limites do mapa
-            damage("deathOffLimits");
+            if (transform.position.y < GameController.GetInstance().limitMinYMap)
+                damage("deathOffLimitsDown");
+            else
+                damage("deathOffLimitsUp");
         }
 
         anim.SetBool("onGround", isOnGround());
         anim.SetBool("onWall", isOnWall());
+
+        Debug.Log(isOnWall());
     }
 
     //Estes m�todos detectam os eventos de inputs:
@@ -108,16 +114,13 @@ public class Player : MonoBehaviour {
         return onGround;
     }
 
-    private bool isOnWall()
-    {
+    private bool isOnWall() {
         bool onWall = (Physics2D.OverlapCircle(WallCheck.position, 0.1f, wallLayer) || Physics2D.OverlapCircle(WallCheck2.position, 0.1f, wallLayer));
-        if (onWall && lookingRight && lastWall != 2)
-        {
+        if (onWall && lookingRight && lastWall != 2) {
             hasJumped = false;
             lastWall = 2;
         }
-        if (onWall && !lookingRight && lastWall != 1)
-        {
+        if (onWall && !lookingRight && lastWall != 1) {
             hasJumped = false;
             lastWall = 1;
         }
@@ -149,6 +152,10 @@ public class Player : MonoBehaviour {
         foreach(GameObject powerUpCollected in powerUpsCollected) {  //Fazendo todos os pwer-ups coletados reaparecerem no mapa
             powerUpCollected.SetActive(true);
         }
+        foreach (GameObject objDialogue in objJokeDialogues) {
+            objDialogue.SetActive(true);
+        }
+        objJokeDialogues.Clear();
         powerUpsCollected.Clear();
     }
 
@@ -172,6 +179,8 @@ public class Player : MonoBehaviour {
             collision.gameObject.SetActive(false);
         }
         if (collision.gameObject.tag == "joke_object") {
+            objJokeDialogues.Add(collision.gameObject);
+            collision.gameObject.SetActive(false);
             GameController.GetInstance().gameStartDialogue((int)GameController.DialogueTypes.Joke, collision.gameObject.name);
         }
 

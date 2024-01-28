@@ -22,16 +22,21 @@ public class GameController : MonoBehaviour {    //GameController será uma class
 
     //Dicionários para os diálogos do jogo relacionando os nomes dos objetos ao seu índice de diálogo:
     private Dictionary<string, int> jokeDialoguesDictionary = new Dictionary<string, int> {
-        {"jokeTest", 1 },
-        {"jokeSpikes", 2 }
+        {"jokeSpikes", 1 },
+        {"jokeWallJump", 2 },
+        {"jokeSprint", 3 },
+        {"jokeLast", 4 },
+        {"jokeDrug", 5 }
     };
     private Dictionary<string, int> loreDialoguesDictionary = new Dictionary<string, int> {
-        {"lore0", 1 },
-        {"lore1", 2 }
+        {"loreOut", 1 },
+        {"lore0", 2 },
+        {"lore1", 3 }
     };
     private Dictionary<string, int> deathDialoguesDictionary = new Dictionary<string, int> {
-        {"deathOffLimits", 1 },
-        {"deathSpikes", 2 }
+        {"deathOffLimitsUp", 1 },
+        {"deathOffLimitsDown", 2 },
+        {"deathSpikes", 3 }
     };
 
     //Dicionário para mudar o idioma das interfaces do jogo:
