@@ -56,14 +56,13 @@ public class Player : MonoBehaviour {
                 smoothMove = Mathf.Lerp(smoothMove, 0, movementSmoothness);
                 rb.velocity = new Vector2(smoothMove * movementSpeed, rb.velocity.y);
             }
-
-            anim.SetFloat("velocity", Mathf.Abs(horizontal));
         }
         else {
             horizontal = 0;
             rb.velocity = new Vector2(0, 0);
             rb.gravityScale = 10;
         }
+        anim.SetFloat("velocity", Mathf.Abs(horizontal));
     }
 
     private void Update() {
@@ -111,7 +110,7 @@ public class Player : MonoBehaviour {
 
     private bool isOnWall()
     {
-        bool onWall = (Physics2D.OverlapCircle(WallCheck.position, 0.2f, wallLayer) || Physics2D.OverlapCircle(WallCheck2.position, 0.2f, wallLayer));
+        bool onWall = (Physics2D.OverlapCircle(WallCheck.position, 0.1f, wallLayer) || Physics2D.OverlapCircle(WallCheck2.position, 0.1f, wallLayer));
         if (onWall && lookingRight && lastWall != 2)
         {
             hasJumped = false;
