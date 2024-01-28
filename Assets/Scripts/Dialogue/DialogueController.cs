@@ -22,7 +22,7 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
     private bool endLine = false;   //Esta variável é responsável por guardar se cada linha do diálogo já terminou ou ainda não
     [HideInInspector]
     public bool isInGame = true;
-    private float textSpeed = 0.05f;
+    private float textSpeed = 0.1f;
     private int indexLine;
 
     public bool dialogueActive { get; private set; }   //Quero que esta variável possa ser lida por outros scripts, mas não modificada
@@ -111,7 +111,6 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
         else {
             if (!endDialogue) {
                 if (dialogue.currentChoices.Count == 0) {
-                    //SoundController.GetInstance().PlaySound("skip_dialogo", null);
                     if (!dialogue.canContinue)     //Se estiver no final do diálogo
                         EndDialogue();
                     else {
@@ -125,12 +124,12 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
 
     //Função que printa cada linha do diálogo na caixa de diálogo
     private IEnumerator PrintDialogue() {
-        //ChangeCharacterDialogue();
         string fala = dialogue.currentText;    //Pegando a fala atual do diálogo
 
         txtDialogue.text = "";
         for (int i = 0; i < fala.Length; i++) {    //Fazendo as letras aparecerem uma de cada vez
             txtDialogue.text += fala[i];
+            SoundController.GetInstance().PlaySound("text", null);
             indexLine = i;
             yield return new WaitForSeconds(textSpeed);
         }
@@ -175,32 +174,5 @@ public class DialogueController : MonoBehaviour {    //Esta classe será única pa
             dialogue.Continue();
             StartCoroutine(PrintDialogue());
         }
-    }
-
-    /*
-    private void ChangeCharacterDialogue() {   //Função para mudar o sprite do personagem do diálogo
-        List<string> tagsDialogueLine = dialogue.currentTags;   //As tags são: nome do personagem e sprite do personagem
-        string characterName = "", spriteCharacter = "";
-        foreach (string tag in tagsDialogueLine) {
-            if (tag.Split(":")[0].Trim() == "character")
-                characterName = tag.Split(":")[1].Trim().ToUpper();
-            else if (tag.Split(":")[0].Trim() == "state")
-                spriteCharacter = tag.Split(":")[1].Trim();
-        }
-        //if (spriteCharacter != "")
-        //    ImgCharacterDialogue.GetComponent<Animator>().Play(spriteCharacter);
-        //if (characterName != "")
-        //    txtNameCharacter.text = characterName;
-    }
-    */
-
-    public Ink.Runtime.Object GetVariableState(string variableName) {    //Esta função servirá para recuperar o estado de determinada variável de diálogo
-        Ink.Runtime.Object variableValue = null;
-        dialogueVariablesController.variablesValues.TryGetValue(variableName, out variableValue);
-        if (variableValue == null) {
-            Debug.Log("Não foi possível recuperar o valor da variável de diálogo informada.");
-            return null;
-        }
-        return variableValue;
     }
 }

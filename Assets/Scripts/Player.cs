@@ -15,9 +15,7 @@ public class Player : MonoBehaviour {
 
     [SerializeField]
     private float movementSpeed, jumpPower, movementSmoothness, jumpSmoothness;
-    private float smoothMove=0, originalJumpPower, originalGravity, originalScaleX, originalScaleY;
-    private float lastWall=-1;
-    //-1 inicial, 1 esquerda, 2 direita
+    private float smoothMove=0, originalJumpPower, originalGravity, originalScaleX, originalScaleY, lastWall=-1;
     private bool lookingRight=true, tookDamage=false, hasJumped=false;
     private List<GameObject> powerUpsCollected = new List<GameObject>();
     private List<GameObject> objJokeDialogues = new List<GameObject>();
@@ -38,7 +36,7 @@ public class Player : MonoBehaviour {
     private void FixedUpdate() {
         if (!GameController.GetInstance().gamePaused()) {   //Se o jogo n�o estiver pausado
             rb.gravityScale = originalGravity;
-            //Fazendo a movimenta��o do player:
+            //Fazendo a movimentação do player:
             if (horizontal > 0) {
                 smoothMove = Mathf.Lerp(smoothMove, 1, movementSmoothness);
                 rb.velocity = new Vector2(smoothMove * movementSpeed, rb.velocity.y);
@@ -76,8 +74,6 @@ public class Player : MonoBehaviour {
 
         anim.SetBool("onGround", isOnGround());
         anim.SetBool("onWall", isOnWall());
-
-        Debug.Log(isOnWall());
     }
 
     //Estes m�todos detectam os eventos de inputs:
@@ -92,6 +88,10 @@ public class Player : MonoBehaviour {
         if (!GameController.GetInstance().gamePaused()) {
             if (value.performed) {   //Quando o evento acontecer
                 anim.SetTrigger("jump");
+                if(jumpPower == originalJumpPower)   //Se não tiver pegado o power-up
+                    SoundController.GetInstance().PlaySound("jump", null);
+                else
+                    SoundController.GetInstance().PlaySound("bigJump", null);
                 bool OnWall = isOnWall();
                 if (isOnGround() || (OnWall && !hasJumped))
                     rb.velocity = new Vector2(rb.velocity.x, jumpPower);
@@ -133,15 +133,16 @@ public class Player : MonoBehaviour {
         spriteRenderer.flipX = !spriteRenderer.flipX;
     }
 
-    private void damage(string details) {  //Este m�todo ser� chamado se o player levar um dano
+    private void damage(string details) {  //Este método será chamado se o player levar um dano
         if (!tookDamage) {
             gameObject.SetActive(false);
-            Vector3 originalScale = new Vector3(originalScaleX, originalScaleY);
-            gameObject.transform.localScale = originalScale;
-            resetPowerUps();
+            SoundController.GetInstance().PlaySound("death", null);
             Vector3 particlesPosition = new Vector3(transform.position.x, transform.position.y + 0.3f);
             particlesDeath.transform.position = particlesPosition;
             particlesDeath.Play();
+            Vector3 originalScale = new Vector3(originalScaleX, originalScaleY);
+            gameObject.transform.localScale = originalScale;
+            resetPowerUps();
             tookDamage = true;
             GameController.GetInstance().gameStartDialogue((int)GameController.DialogueTypes.Death, details);   //details define como o jogador morreu
         }
@@ -168,6 +169,7 @@ public class Player : MonoBehaviour {
     private void OnTriggerEnter2D(Collider2D collision) {
         if (collision.gameObject.tag == "power_up") {
             if (collision.gameObject.layer == LayerMask.NameToLayer("power_up_jump")) {
+                SoundController.GetInstance().PlaySound("drug", null);
                 jumpPower *= 10;
             }
             powerUpsCollected.Add(collision.gameObject);
@@ -187,13 +189,14 @@ public class Player : MonoBehaviour {
 
         if (collision.gameObject.tag == "end_game") {   //Se o jogadro chegar ao fim do jogo
             Destroy(collision.gameObject);
+            SoundController.GetInstance().PlaySound("end", null);
             StartCoroutine(endGame());
         }
     }
 
 
     private IEnumerator endGame() {
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(1);
         TransitionsController.GetInstance().LoadNextScene();
     }
 

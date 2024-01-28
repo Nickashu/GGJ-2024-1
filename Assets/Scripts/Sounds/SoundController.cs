@@ -10,8 +10,8 @@ public class SoundController : MonoBehaviour {   //Será uma classe Singleton
     public int numTimesMenu = 0;   //Esta variável servirá para detectar se o jogo acabou de ser aberto
 
     public Sound[] sounds;
-    private Dictionary<string, bool> isPlayingOST = new Dictionary<string, bool> { { "OST_safe", false }, { "OST_trilha1", false }, { "OST_trilha1_timer", false }, { "OST_tension", false }, { "OST_menu", false } };
-    private Dictionary<string, float> volumeOSTs = new Dictionary<string, float> { { "OST_safe", 0.4f }, { "OST_trilha1", 0.4f }, { "OST_trilha1_timer", 0.6f }, { "OST_tension", 0.8f }, { "OST_menu", 1 } };
+    private Dictionary<string, bool> isPlayingOST = new Dictionary<string, bool> { { "OST_menu", false }, { "OST_level", false } };
+    private Dictionary<string, float> volumeOSTs = new Dictionary<string, float> { { "OST_menu", 1 }, { "OST_level", 1 } };
 
     public static SoundController GetInstance() {
         return instance;
@@ -79,7 +79,6 @@ public class SoundController : MonoBehaviour {   //Será uma classe Singleton
                 else {
                     AudioSource[] audios = gameObject.GetComponents<AudioSource>();
                     audios.FirstOrDefault(a => a.clip.name.Equals(soundName)).Play();
-                    //Debug.Log("Som: " + soundName);
                 }
             }
         }

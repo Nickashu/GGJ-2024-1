@@ -30,24 +30,19 @@ public class TransitionsController : MonoBehaviour {
         else
             animTransitionScenes.SetBool("fadeOut", true);
 
-        //playSceneMusic();   //Toca a música correspondente ao mudar de cena
+        playSceneMusic();   //Toca a música correspondente ao mudar de cena
     }
 
     private void playSceneMusic() {
-        if (SceneManager.GetActiveScene().name.Contains("Menu")) {
-            //SoundController.GetInstance().PlaySound("OST_menu", null);
-        }
-        else if (SceneManager.GetActiveScene().name.Contains("Inicial")) {
-            //SoundController.GetInstance().PlaySound("OST_safe", null);
-        }
-        else if (SceneManager.GetActiveScene().name.Contains("Final")) {
-            //SoundController.GetInstance().PlaySound("OST_menu", null);
-        }
+        if (SceneManager.GetActiveScene().name.Contains("Menu"))
+            SoundController.GetInstance().PlaySound("OST_menu", null);
+        else
+            SoundController.GetInstance().PlaySound("OST_level", null);
     }
 
     public void LoadNextScene() {
         if (SceneManager.GetActiveScene().buildIndex == SceneManager.sceneCountInBuildSettings - 1) {    //Se estivermos na última cena
-            //Debug.Log("Jogo terminado!");
+            Debug.Log("Jogo terminado!");
             StartCoroutine(LoadScene(0));   //Carregando a primeira cena novamente (menu)
         }
         else

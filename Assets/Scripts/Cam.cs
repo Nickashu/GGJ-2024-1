@@ -6,25 +6,22 @@ public class Cam : MonoBehaviour {
 
     public Transform player;
     [SerializeField]
-    private float distanceOffset, camMovementSmoothness;
-    private float posInitY;
+    private float distanceOffsetX, camMovementSmoothness, posInitY=0;
 
     private void Start() {
         playerScript = player.gameObject.GetComponent<Player>();
-        posInitY = transform.position.y;
     }
 
     void FixedUpdate() {
         if (player != null) {
             //Fazendo a movimentação da câmera
             if (playerScript.horizontal > 0)
-                distanceOffset = Mathf.Abs(distanceOffset);
+                distanceOffsetX = Mathf.Abs(distanceOffsetX);
             else if (playerScript.horizontal < 0)
-                distanceOffset = (-1) * Mathf.Abs(distanceOffset);
-            follow = new Vector3(player.position.x + distanceOffset, player.position.y, transform.position.z);
+                distanceOffsetX = (-1) * Mathf.Abs(distanceOffsetX);
+            float followY = player.position.y > posInitY ? player.position.y : posInitY;
+            follow = new Vector3(player.position.x + distanceOffsetX, followY, transform.position.z);
 
-
-            //transform.position = follow;
             transform.position = Vector3.Lerp(transform.position, follow, camMovementSmoothness * Time.deltaTime);
         }
     }
